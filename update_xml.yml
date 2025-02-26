@@ -1,0 +1,41 @@
+name: Update XML File in AKS
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - "update-scripts/**"
+
+  workflow_dispatch:
+    # Allow manual execution
+
+jobs:
+  update-xml:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set AKS Context
+      run: |
+        az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
+
+    - name: Find Nginx Pod
+      id: get_pod
+      run: |
+        POD_NAME=$(kubectl get pods -n nginx-namespace -l app=nginx -o jsonpath="{.items[0].metadata.name}")
+        echo "POD_NAME=$POD_NAME" >> $GITHUB_ENV
+
+    - name: Execute XML Update Script in Nginx Pod
+      env:
+        ARG1: "value1" # Replace with actual argument
+        ARG2: "value2" # Replace with actual argument
+      run: |
+        kubectl exec -n nginx-namespace $POD_NAME -- /bin/sh -c "/scripts/update-xml.sh $ARG1 $ARG2"

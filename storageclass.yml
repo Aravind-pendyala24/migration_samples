@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-sc
+provisioner: file.csi.azure.com
+parameters:
+  skuName: Standard_LRS # Can be Premium_LRS for faster storage
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate

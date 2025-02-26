@@ -1,0 +1,40 @@
+name: Sync Files to Azure Files
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - "static-files/**"
+    - "xmls/**"
+
+  workflow_dispatch:
+    # Allows manual execution
+
+jobs:
+  sync-files:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+    - name: Sync Static Files to Azure Files
+      run: |
+        az storage file upload-batch \
+          --destination https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.file.core.windows.net/nginx-static-files \
+          --source ./static-files \
+          --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+          --account-key ${{ secrets.AZURE_STORAGE_KEY }}
+
+    - name: Sync XML Files to Azure Files
+      run: |
+        az storage file upload-batch \
+          --destination https://${{ secrets.AZURE_STORAGE_ACCOUNT }}.file.core.windows.net/nginx-xmls \
+          --source ./xmls \
+          --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+          --account-key ${{ secrets.AZURE_STORAGE_KEY }}
