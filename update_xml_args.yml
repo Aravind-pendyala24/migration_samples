@@ -1,0 +1,39 @@
+name: Update XML in AKS
+
+on:
+  workflow_dispatch:
+    inputs:
+      arg1:
+        description: "First argument for the shell script"
+        required: true
+        type: string
+      arg2:
+        description: "Second argument for the shell script"
+        required: true
+        type: string
+
+jobs:
+  update-xml:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate to AKS
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
+            -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_CLUSTER_NAME }}
+
+      - name: Get Running Nginx Pod
+        id: get_pod
+        run: |
+          POD_NAME=$(kubectl get pods -n nginx-namespace -l app=nginx -o jsonpath="{.items[0].metadata.name}")
+          echo "POD_NAME=$POD_NAME" >> $GITHUB_ENV
+
+      - name: Run Shell Script inside AKS Pod
+        run: |
+          kubectl exec -n nginx-namespace $POD_NAME -- /mnt/scripts/update-xml.sh \
+            "${{ inputs.arg1 }}" "${{ inputs.arg2 }}"
