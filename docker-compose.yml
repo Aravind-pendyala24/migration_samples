@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  ubuntu:
+    image: ubuntu:latest
+    container_name: ubuntu-container
+    # Keep the container running
+    command: tail -f /dev/null
+    volumes:
+      # Mount the current directory to /app in the container
+      - ./:/app
+    working_dir: /app
