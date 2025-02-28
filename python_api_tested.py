@@ -5,6 +5,10 @@ import platform
 
 app = Flask(__name__)
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 @app.route('/update_xml', methods=['POST'])
 def update_xml():
     data = request.json
