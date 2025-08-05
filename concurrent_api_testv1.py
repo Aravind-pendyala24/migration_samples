@@ -4,7 +4,7 @@ import time
 
 # CONFIGURATION
 URL = "http://localhost:5000/update_xml"
-XML_FILENAME = "sample.xml"  # Must exist in /usr/share/nginx/html/xml/
+XML_FILENAME = "list.xml"  # Must exist in /usr/share/nginx/html/xml/
 
 # Two argument lists (must be of equal length)
 arg1_list = ["1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.4.0"]
